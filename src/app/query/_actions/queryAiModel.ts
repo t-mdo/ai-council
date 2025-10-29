@@ -12,12 +12,12 @@ Your answer:
 [Complete answer weighing both pros & cons]
 { "answer": "Rails" }`;
 
-export async function queryAiModel(query: string) {
+export async function queryAiModel(modelId: string, query: string) {
   const stream = createStreamableValue("");
 
   (async () => {
     const { textStream } = streamText({
-      model: "google/gemini-2.5-flash",
+      model: modelId,
       system: SYSTEM_PROMPT,
       prompt: query,
     });

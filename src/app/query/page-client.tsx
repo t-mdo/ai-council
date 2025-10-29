@@ -65,7 +65,7 @@ export function QueryPageClient({ query }: { query: string }) {
     let cancelled = false;
 
     aiMembers.forEach(async (aiMember) => {
-      const { stream } = await queryAiModel(query);
+      const { stream } = await queryAiModel(aiMember.modelId, query);
 
       for await (const delta of readStreamableValue(stream)) {
         if (cancelled) break;

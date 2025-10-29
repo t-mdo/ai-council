@@ -3,7 +3,9 @@
 import { createStreamableValue } from "@ai-sdk/rsc";
 import { streamText } from "ai";
 
-const SYSTEM_PROMPT = `You are a helpful assistant. You are going to be asked a question about making a choice between multiple options. You will deliver a clear, helpful response. Format it in markdown. As the very last line output a pure json line with your final answer. Don't any formatting blocks or tags around the json output.
+const SYSTEM_PROMPT = `You are a helpful assistant. You are going to be asked a question about making a choice between multiple options. You will deliver a clear, helpful response. Format it in markdown.
+
+As the very last line output a JSONL with your final answer. DON'T output any formatting around this json line. No markdown or \`\`\`json block, only raw JSONL.
 
 === Example ===
 User prompt: "If I wanted to build a twitter clone, should i use rails or js for the backend/api? I have more experience in rails but lean on the nextjs stack these days."

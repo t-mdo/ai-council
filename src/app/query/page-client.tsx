@@ -179,7 +179,7 @@ export function QueryPageClient({ query }: { query: string }) {
         <div className="border rounded-sm w-full p-1 max-w-4xl">
           <div className="overflow-y-auto border rounded-xs w-full h-full py-8 px-8 bg-neutral-900">
             <div className="leading-relaxed text-md text-neutral-200 prose dark:prose-invert prose-neutral prose prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-headings:my-3 prose-strong:font-semibold">
-              <Markdown>{"test"}</Markdown>
+              <Markdown>{aiStates[focusOn].fullAnswer}</Markdown>
             </div>
           </div>
         </div>

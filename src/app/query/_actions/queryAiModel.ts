@@ -10,7 +10,7 @@ User prompt: "If I wanted to build a twitter clone, should i use rails or js for
 
 Your answer:
 [Complete answer weighing both pros & cons]
-{ answer: 'Rails' }`;
+{ "answer": "Rails" }`;
 
 export async function queryAiModel(query: string) {
   const stream = createStreamableValue("");

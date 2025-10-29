@@ -129,7 +129,9 @@ export function QueryPageClient({ query }: { query: string }) {
       let answerColor: string;
 
       const sameAnswerAlreadyAssignedColor = Object.values(aiStates).find(
-        (aiState) => aiState.answer === answer && aiState.answerColor,
+        (aiState) =>
+          aiState.answer?.toLowerCase() === answer.toLowerCase() &&
+          aiState.answerColor,
       )?.answerColor;
 
       if (sameAnswerAlreadyAssignedColor) {

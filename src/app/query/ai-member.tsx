@@ -42,6 +42,9 @@ export function AiMember({
           },
         )}
       >
+        {aiState.status === "initial" && (
+          <p className="text-xs text-neutral-600 animate-pulse">Waiting...</p>
+        )}
         {aiState.status === "streaming" && (
           <p className="text-xs text-neutral-600 animate-pulse">Thinking...</p>
         )}

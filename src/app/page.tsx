@@ -16,7 +16,7 @@ export default function Root() {
       <main className="flex min-h-screen justify-center w-full max-w-3xl flex-col py-32 px-16">
         <div className="-mt-11">
           <h2 className="text-md mb-2">
-            Ask the council of models to choose between multiple options.
+            Ask the council of models to choose between multiple options
           </h2>
           <form action={submit} className="w-full flex gap-2">
             <Input name="query" />

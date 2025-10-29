@@ -5,7 +5,23 @@ import Markdown from "react-markdown";
 import { queryAiModel } from "./_actions/queryAiModel";
 import { AiMember } from "./ai-member";
 
-const aiMembersProps = [
+export type AiState = {
+  status: "initial" | "streaming" | "done" | "error";
+  fullAnswer: string | null;
+  answer: string | null;
+  answerColor: string | null;
+};
+
+const AVAILABLE_COLORS = [
+  "violet",
+  "amber",
+  "lime",
+  "emerald",
+  "blue",
+  "pink",
+] as const;
+
+const aiMembers = [
   {
     modelId: "claude-sonnet-4.5",
     modelName: "Claude Sonnet 4.5",
@@ -30,31 +46,124 @@ const aiMembersProps = [
 
 export function QueryPageClient({ query }: { query: string }) {
   const [focusOn, setFocusOn] = useState<string | null>(null);
-  const [aiOutput, setAiOutput] = useState("");
+  const initialAiStates = aiMembers.reduce<Record<string, AiState>>(
+    (acc, aiMember) => {
+      acc[aiMember.modelId] = {
+        status: "initial",
+        answer: null,
+        fullAnswer: null,
+        answerColor: null,
+      };
+      return acc;
+    },
+    {},
+  );
+  const [aiStates, setAiStates] =
+    useState<Record<string, AiState>>(initialAiStates);
 
   useEffect(() => {
     let cancelled = false;
 
-    (async () => {
+    aiMembers.forEach(async (aiMember) => {
       const { stream } = await queryAiModel(query);
 
       for await (const delta of readStreamableValue(stream)) {
         if (cancelled) break;
 
-        setAiOutput((state) => state + delta);
+        setAiStates((prevState) => ({
+          ...prevState,
+          [aiMember.modelId]: {
+            ...prevState[aiMember.modelId],
+            status: "streaming",
+            fullAnswer: (prevState[aiMember.modelId].fullAnswer || "") + delta,
+          },
+        }));
       }
-    })();
+
+      if (!cancelled) {
+        setAiStates((prevState) => ({
+          ...prevState,
+          [aiMember.modelId]: {
+            ...prevState[aiMember.modelId],
+            status: "done",
+          },
+        }));
+      }
+    });
 
     return () => {
       cancelled = true;
     };
   }, [query]);
 
+  useEffect(() => {
+    Object.entries(aiStates).forEach(([modelId, aiState]) => {
+      if (aiState.status !== "done" || aiState.answer) return;
+
+      const answerRegex = /({ *"answer": ".*" *})$/i;
+
+      const match = aiState.fullAnswer?.match(answerRegex);
+      console.log({ match });
+      if (!match) {
+        setAiStates((prevState) => ({
+          ...prevState,
+          [modelId]: {
+            ...prevState[modelId],
+            status: "error",
+          },
+        }));
+        return;
+      }
+
+      const answer = JSON.parse(match[0])?.answer;
+      console.log({ answer });
+      if (!answer) {
+        setAiStates((prevState) => ({
+          ...prevState,
+          [modelId]: {
+            ...prevState[modelId],
+            status: "error",
+          },
+        }));
+        return;
+      }
+
+      let answerColor: string;
+
+      const sameAnswerAlreadyAssignedColor = Object.values(aiStates).find(
+        (aiState) => aiState.answer === answer && aiState.answerColor,
+      )?.answerColor;
+
+      if (sameAnswerAlreadyAssignedColor) {
+        answerColor = sameAnswerAlreadyAssignedColor;
+      } else {
+        const nbOfColorUsed = new Set(
+          Object.values(aiStates)
+            .map((aiState) => aiState.answerColor)
+            .filter(Boolean),
+        ).size;
+        answerColor = AVAILABLE_COLORS[nbOfColorUsed];
+      }
+      setAiStates((prevState) => ({
+        ...prevState,
+        [modelId]: {
+          ...prevState[modelId],
+          fullAnswer:
+            prevState[modelId]?.fullAnswer?.replace(answerRegex, "").trim() ||
+            null,
+          answer,
+          answerColor,
+        },
+      }));
+    });
+  }, [aiStates]);
+
+  console.log(aiStates);
   if (focusOn) {
     return (
       <main className="flex gap-2 h-screen w-full py-16 px-4">
         <div className="flex flex-col gap-2 ml-2">
-          {aiMembersProps.map((props) => (
+          {aiMembers.map((props) => (
             <AiMember
               key={props.modelId}
               onClick={() =>
@@ -62,6 +171,7 @@ export function QueryPageClient({ query }: { query: string }) {
                   state === props.modelId ? null : props.modelId,
                 )
               }
+              aiState={aiStates[props.modelId]}
               {...props}
             />
           ))}
@@ -69,7 +179,7 @@ export function QueryPageClient({ query }: { query: string }) {
         <div className="border rounded-sm w-full p-1 max-w-4xl">
           <div className="overflow-y-auto border rounded-xs w-full h-full py-8 px-8 bg-neutral-900">
             <div className="leading-relaxed text-md text-neutral-200 prose dark:prose-invert prose-neutral prose prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-headings:my-3 prose-strong:font-semibold">
-              <Markdown>{aiOutput}</Markdown>
+              <Markdown>{"test"}</Markdown>
             </div>
           </div>
         </div>
@@ -82,13 +192,14 @@ export function QueryPageClient({ query }: { query: string }) {
       <div className="flex flex-col">
         <h2 className="text-lg mb-12">{query}</h2>
         <div className="flex flex-wrap gap-2 ml-2">
-          {aiMembersProps.map((aiMemberProps) => (
+          {aiMembers.map((props) => (
             <AiMember
-              key={aiMemberProps.modelId}
+              key={props.modelId}
               onClick={() => {
-                setFocusOn(aiMemberProps.modelId);
+                setFocusOn(props.modelId);
               }}
-              {...aiMemberProps}
+              aiState={aiStates[props.modelId]}
+              {...props}
             />
           ))}
         </div>

@@ -114,6 +114,9 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@source inline('bg-{violet,amber,lime,emerald,blue,pink}-900');
+@source inline('text-{violet,amber,lime,emerald,blue,pink}-100');
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

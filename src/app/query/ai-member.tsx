@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import type { AiState } from "./page-client";
 
 type AiMemberObject = {
   modelImagePath: string;
@@ -13,10 +14,10 @@ export function AiMember({
   modelImagePath,
   modelName,
   modelId,
+  aiState,
   onClick,
-}: AiMemberObject & { onClick: () => void }) {
-  const rand = Math.random();
-  const state = rand < 0.5 ? "decided" : "thinking";
+}: AiMemberObject & { aiState: AiState; onClick: () => void }) {
+  const colorCss = `bg-${aiState.answerColor}-900 text-${aiState.answerColor}-100`;
 
   return (
     <button
@@ -38,17 +39,16 @@ export function AiMember({
         className={cn(
           "font-geist-mono p-2 border rounded-xs flex items-center gap-2",
           {
-            "bg-purple-900 text-purple-100": state === "decided" && rand < 0.25,
-            "bg-cyan-900 text-cyan-100": state === "decided" && rand > 0.25,
+            [colorCss]: aiState.status === "done",
           },
         )}
       >
-        {state === "thinking" && (
+        {aiState.status === "streaming" && (
           <p className="text-xs text-neutral-600 animate-pulse">Thinking...</p>
         )}
-        {state === "decided" && (
+        {aiState.status === "done" && (
           <p className="w-full text-center text-xs text-semibold">
-            {rand < 0.25 ? "Rails" : "Javascript"}
+            {aiState.answer}
           </p>
         )}
       </div>

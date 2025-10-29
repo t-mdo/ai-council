@@ -103,7 +103,6 @@ export function QueryPageClient({ query }: { query: string }) {
       const answerRegex = /({ *"answer": ".*" *})$/i;
 
       const match = aiState.fullAnswer?.match(answerRegex);
-      console.log({ match });
       if (!match) {
         setAiStates((prevState) => ({
           ...prevState,
@@ -116,7 +115,6 @@ export function QueryPageClient({ query }: { query: string }) {
       }
 
       const answer = JSON.parse(match[0])?.answer;
-      console.log({ answer });
       if (!answer) {
         setAiStates((prevState) => ({
           ...prevState,
@@ -158,7 +156,6 @@ export function QueryPageClient({ query }: { query: string }) {
     });
   }, [aiStates]);
 
-  console.log(aiStates);
   if (focusOn) {
     return (
       <main className="flex gap-2 h-screen w-full py-16 px-4">

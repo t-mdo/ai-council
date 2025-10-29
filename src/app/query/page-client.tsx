@@ -158,25 +158,28 @@ export function QueryPageClient({ query }: { query: string }) {
 
   if (focusOn) {
     return (
-      <main className="flex gap-2 h-screen w-full py-16 px-4">
-        <div className="flex flex-col gap-2 ml-2">
-          {aiMembers.map((props) => (
-            <AiMember
-              key={props.modelId}
-              onClick={() =>
-                setFocusOn((state) =>
-                  state === props.modelId ? null : props.modelId,
-                )
-              }
-              aiState={aiStates[props.modelId]}
-              {...props}
-            />
-          ))}
-        </div>
-        <div className="border rounded-sm w-full p-1 max-w-4xl">
-          <div className="overflow-y-auto border rounded-xs w-full h-full py-8 px-8 bg-neutral-900">
-            <div className="leading-relaxed text-md text-neutral-200 prose dark:prose-invert prose-neutral prose prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-headings:my-3 prose-strong:font-semibold">
-              <Markdown>{aiStates[focusOn].fullAnswer}</Markdown>
+      <main className="flex flex-col gap-2 w-full py-16 px-4">
+        <h2 className="text-lg mb-4">{query}</h2>
+        <div className="flex gap-2 h-screen w-full">
+          <div className="flex flex-col gap-2">
+            {aiMembers.map((props) => (
+              <AiMember
+                key={props.modelId}
+                onClick={() =>
+                  setFocusOn((state) =>
+                    state === props.modelId ? null : props.modelId,
+                  )
+                }
+                aiState={aiStates[props.modelId]}
+                {...props}
+              />
+            ))}
+          </div>
+          <div className="border rounded-sm w-full p-1 max-w-4xl">
+            <div className="overflow-y-auto border rounded-xs w-full h-full py-8 px-8 bg-neutral-900">
+              <div className="leading-relaxed text-md text-neutral-200 prose dark:prose-invert prose-neutral prose prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-headings:my-3 prose-strong:font-semibold">
+                <Markdown>{aiStates[focusOn].fullAnswer}</Markdown>
+              </div>
             </div>
           </div>
         </div>
@@ -187,8 +190,8 @@ export function QueryPageClient({ query }: { query: string }) {
   return (
     <main className="flex items-center min-h-screen w-full flex-col py-32 px-16 bg-white dark:bg-black">
       <div className="flex flex-col">
-        <h2 className="text-lg mb-12">{query}</h2>
-        <div className="flex flex-wrap gap-2 ml-2">
+        <h2 className="text-lg mb-4">{query}</h2>
+        <div className="flex flex-wrap gap-2">
           {aiMembers.map((props) => (
             <AiMember
               key={props.modelId}

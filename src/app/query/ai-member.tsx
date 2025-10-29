@@ -13,7 +13,6 @@ type AiMemberObject = {
 export function AiMember({
   modelImagePath,
   modelName,
-  modelId,
   aiState,
   onClick,
 }: AiMemberObject & { aiState: AiState; onClick: () => void }) {

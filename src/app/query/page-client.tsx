@@ -23,22 +23,22 @@ const AVAILABLE_COLORS = [
 
 const aiMembers = [
   {
-    modelId: "claude-sonnet-4.5",
+    modelId: "anthropic/claude-sonnet-4.5",
     modelName: "Claude Sonnet 4.5",
     modelImagePath: "/images/anthropic.avif",
   },
   {
-    modelId: "gpt-5",
+    modelId: "openai/gpt-5",
     modelName: "GPT 5",
     modelImagePath: "/images/openai.avif",
   },
   {
-    modelId: "gemini-pro-2.5",
+    modelId: "google/gemini-2.5-pro",
     modelName: "Gemini Pro 2.5",
     modelImagePath: "/images/google.avif",
   },
   {
-    modelId: "grok-5",
+    modelId: "xai/grok-4",
     modelName: "Grok 4",
     modelImagePath: "/images/xai.avif",
   },

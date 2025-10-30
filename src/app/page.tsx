@@ -13,16 +13,14 @@ async function submit(formData: FormData) {
 export default function Root() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen justify-center w-full max-w-3xl flex-col py-32 px-16">
-        <div className="-mt-11">
-          <h2 className="text-md mb-2">
-            Ask the council of models to choose between multiple options
-          </h2>
-          <form action={submit} className="w-full flex gap-2">
-            <Input name="query" />
-            <Button>↑</Button>
-          </form>
-        </div>
+      <main className="flex min-h-screen w-full max-w-3xl flex-col justify-center px-16 py-32">
+        <form action={submit} className="flex w-full items-center gap-2">
+          <Input
+            name="query"
+            placeholder="Ask the council of models to choose between multiple options"
+          />
+          <Button>↑</Button>
+        </form>
       </main>
     </div>
   );

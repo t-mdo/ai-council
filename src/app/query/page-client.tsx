@@ -107,7 +107,7 @@ export function QueryPageClient({ query }: { query: string }) {
     Object.entries(aiStates).forEach(([modelId, aiState]) => {
       if (aiState.status !== "done" || aiState.answer) return;
 
-      const answerRegex = /({ *"answer": ".*" *})$/i;
+      const answerRegex = /({ *"answer" *: *".*" *})$/i;
 
       const match = aiState.fullAnswer?.match(answerRegex);
       if (!match) {

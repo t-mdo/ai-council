@@ -57,8 +57,8 @@ export function AiMember({
           <p className="animate-pulse text-neutral-600 text-xs">Waiting...</p>
         )}
         {aiState.status === "streaming" && (
-          <p className="w-full animate-pulse overflow-hidden text-nowrap text-neutral-600 text-xs">
-            {aiState.fullAnswerPreview}...
+          <p className="w-full animate-pulse overflow-hidden text-ellipsis text-nowrap text-neutral-600 text-xs">
+            {aiState.fullAnswerPreview}…
           </p>
         )}
         {aiState.status === "done" && (

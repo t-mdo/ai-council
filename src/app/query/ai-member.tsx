@@ -14,8 +14,13 @@ export function AiMember({
   modelImagePath,
   modelName,
   aiState,
+  focused,
   onClick,
-}: AiMemberObject & { aiState: AiState; onClick: () => void }) {
+}: AiMemberObject & {
+  aiState: AiState;
+  focused: boolean;
+  onClick: () => void;
+}) {
   const colorCss = `bg-${aiState.answerColor}-900 text-${aiState.answerColor}-100`;
 
   return (
@@ -28,7 +33,10 @@ export function AiMember({
           onClick();
         }
       }}
-      className="w-52 border rounded-sm p-1 text-left cursor-pointer"
+      className={cn("w-52 border rounded-sm p-1 text-left cursor-pointer", {
+        "hover:shadow-[0_0_2px_rgba(255,255,255,0.4)]": !focused,
+        "shadow-[0_0_5px_rgba(255,255,255,0.6)]": focused,
+      })}
     >
       <div className="text-neutral-100 bg-neutral-900 mb-1 p-2 border rounded-xs flex items-center gap-2">
         <Image src={modelImagePath} alt="logo" width={32} height={32} />

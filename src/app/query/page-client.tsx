@@ -173,6 +173,7 @@ export function QueryPageClient({ query }: { query: string }) {
                   )
                 }
                 aiState={aiStates[props.modelId]}
+                focused={props.modelId === focusOn}
                 {...props}
               />
             ))}

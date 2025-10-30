@@ -18,7 +18,7 @@ export function AiMember({
   onClick,
 }: AiMemberObject & {
   aiState: AiState;
-  focused: boolean;
+  focused?: boolean;
   onClick: () => void;
 }) {
   const colorCss = `bg-${aiState.answerColor}-900 text-${aiState.answerColor}-100`;

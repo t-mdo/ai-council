@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LLM Council",
-  description: "The council picks an option for you.",
+  title: "AI Council",
+  description: "The council is united.",
 };
 
 export default function RootLayout({

@@ -34,7 +34,7 @@ export function AiMember({
         }
       }}
       className={cn(
-        "min-w-52 cursor-pointer rounded-sm border p-1 text-left outline-none",
+        "w-52 cursor-pointer rounded-sm border p-1 text-left outline-none",
         {
           "hover:shadow-[0_0_2px_rgba(255,255,255,0.4)]": !focused,
           "shadow-[0_0_2px_rgba(255,255,255,0.8)]": focused,
@@ -57,7 +57,9 @@ export function AiMember({
           <p className="animate-pulse text-neutral-600 text-xs">Waiting...</p>
         )}
         {aiState.status === "streaming" && (
-          <p className="animate-pulse text-neutral-600 text-xs">Thinking...</p>
+          <p className="w-full animate-pulse overflow-hidden text-nowrap text-neutral-600 text-xs">
+            {aiState.fullAnswerPreview}...
+          </p>
         )}
         {aiState.status === "done" && (
           <p className="w-full text-center text-semibold text-xs">

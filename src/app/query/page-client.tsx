@@ -11,6 +11,7 @@ export type AiState = {
   fullAnswer: string | null;
   answer: string | null;
   answerColor: string | null;
+  fullAnswerPreview: string | null;
 };
 
 const AVAILABLE_COLORS = [
@@ -53,6 +54,7 @@ export function QueryPageClient({ query }: { query: string }) {
         status: "initial",
         answer: null,
         fullAnswer: null,
+        fullAnswerPreview: null,
         answerColor: null,
       };
       return acc;
@@ -71,12 +73,16 @@ export function QueryPageClient({ query }: { query: string }) {
       for await (const delta of readStreamableValue(stream)) {
         if (cancelled) break;
 
+        const PREVIEW_CHAR_LENGTH = 30;
         setAiStates((prevState) => ({
           ...prevState,
           [aiMember.modelId]: {
             ...prevState[aiMember.modelId],
             status: "streaming",
             fullAnswer: (prevState[aiMember.modelId].fullAnswer || "") + delta,
+            fullAnswerPreview: (
+              (prevState[aiMember.modelId].fullAnswerPreview || "") + delta
+            ).slice(-PREVIEW_CHAR_LENGTH),
           },
         }));
       }

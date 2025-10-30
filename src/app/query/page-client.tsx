@@ -14,11 +14,11 @@ export type AiState = {
 
 const AVAILABLE_COLORS = [
   "violet",
-  "amber",
-  "lime",
   "emerald",
   "blue",
   "pink",
+  "amber",
+  "lime",
 ] as const;
 
 const aiMembers = [

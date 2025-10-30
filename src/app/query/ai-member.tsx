@@ -47,7 +47,7 @@ export function AiMember({
       </div>
       <div
         className={cn(
-          "flex grow items-center gap-2 rounded-xs border p-2 font-geist-mono",
+          "flex items-center gap-2 rounded-xs border p-2 font-geist-mono",
           {
             [colorCss]: aiState.status === "done",
           },

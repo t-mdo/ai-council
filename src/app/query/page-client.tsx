@@ -167,11 +167,15 @@ export function QueryPageClient({ query }: { query: string }) {
 
   return (
     <main className="flex h-full flex-col items-center py-18">
-      <div className="flex h-full w-4xl flex-col">
+      <div className="flex w-4xl flex-1 flex-col">
         <h2 className="mb-4 text-lg">{query}</h2>
-        <div className={cn("flex h-full gap-2", { "flex-col": !focusOn })}>
+        <div
+          className={cn("flex max-h-full flex-1 gap-2", {
+            "flex-col": !focusOn,
+          })}
+        >
           <div
-            className={cn("flex flex-wrap gap-2", {
+            className={cn("flex flex-wrap items-start gap-2", {
               "flex-col": !!focusOn,
             })}
           >
@@ -190,8 +194,8 @@ export function QueryPageClient({ query }: { query: string }) {
             ))}
           </div>
           {focusOn && (
-            <div className="flex h-full grow rounded-sm border p-1">
-              <div className="flex h-full w-full overflow-y-auto rounded-xs border bg-neutral-900 px-8 py-8">
+            <div className="flex grow rounded-sm border p-1">
+              <div className="flex w-full overflow-y-auto rounded-xs border bg-neutral-900 px-8 py-8">
                 <div className="prose dark:prose-invert prose-neutral prose prose-headings:my-3 prose-li:my-0.5 prose-p:my-2 prose-ul:my-2 prose-strong:font-semibold text-md text-neutral-200 leading-relaxed">
                   <div className="pb-8">
                     <AiResponse>{aiStates[focusOn].fullAnswer}</AiResponse>

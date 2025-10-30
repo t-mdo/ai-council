@@ -34,7 +34,7 @@ export function AiMember({
         }
       }}
       className={cn(
-        "w-52 cursor-pointer rounded-sm border p-1 text-left outline-none",
+        "flex w-52 cursor-pointer flex-col rounded-sm border p-1 text-left outline-none",
         {
           "hover:shadow-[0_0_2px_rgba(255,255,255,0.4)]": !focused,
           "shadow-[0_0_2px_rgba(255,255,255,0.8)]": focused,
@@ -47,7 +47,7 @@ export function AiMember({
       </div>
       <div
         className={cn(
-          "flex items-center gap-2 rounded-xs border p-2 font-geist-mono",
+          "flex grow items-center gap-2 rounded-xs border p-2 font-geist-mono",
           {
             [colorCss]: aiState.status === "done",
           },

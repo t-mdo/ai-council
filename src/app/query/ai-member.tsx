@@ -33,31 +33,34 @@ export function AiMember({
           onClick();
         }
       }}
-      className={cn("w-52 border rounded-sm p-1 text-left cursor-pointer", {
-        "hover:shadow-[0_0_2px_rgba(255,255,255,0.4)]": !focused,
-        "shadow-[0_0_2px_rgba(255,255,255,0.8)]": focused,
-      })}
+      className={cn(
+        "min-w-52 cursor-pointer rounded-sm border p-1 text-left outline-none",
+        {
+          "hover:shadow-[0_0_2px_rgba(255,255,255,0.4)]": !focused,
+          "shadow-[0_0_2px_rgba(255,255,255,0.8)]": focused,
+        },
+      )}
     >
-      <div className="text-neutral-100 bg-neutral-900 mb-1 p-2 border rounded-xs flex items-center gap-2">
+      <div className="mb-1 flex items-center gap-2 rounded-xs border bg-neutral-900 p-2 text-neutral-100">
         <Image src={modelImagePath} alt="logo" width={32} height={32} />
-        <h4 className="text-sm font-semibold">{modelName}</h4>
+        <h4 className="font-semibold text-sm">{modelName}</h4>
       </div>
       <div
         className={cn(
-          "font-geist-mono p-2 border rounded-xs flex items-center gap-2",
+          "flex items-center gap-2 rounded-xs border p-2 font-geist-mono",
           {
             [colorCss]: aiState.status === "done",
           },
         )}
       >
         {aiState.status === "initial" && (
-          <p className="text-xs text-neutral-600 animate-pulse">Waiting...</p>
+          <p className="animate-pulse text-neutral-600 text-xs">Waiting...</p>
         )}
         {aiState.status === "streaming" && (
-          <p className="text-xs text-neutral-600 animate-pulse">Thinking...</p>
+          <p className="animate-pulse text-neutral-600 text-xs">Thinking...</p>
         )}
         {aiState.status === "done" && (
-          <p className="w-full text-center text-xs text-semibold">
+          <p className="w-full text-center text-semibold text-xs">
             {aiState.answer}
           </p>
         )}

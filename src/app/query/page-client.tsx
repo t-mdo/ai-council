@@ -1,8 +1,9 @@
 "use client";
 import { readStreamableValue } from "@ai-sdk/rsc";
 import { useEffect, useState } from "react";
-import { queryAiModel } from "./_actions/queryAiModel";
 import { Response as AiResponse } from "@/components/ai-elements/response";
+import { cn } from "@/lib/utils";
+import { queryAiModel } from "./_actions/queryAiModel";
 import { AiMember } from "./ai-member";
 
 export type AiState = {
@@ -159,33 +160,41 @@ export function QueryPageClient({ query }: { query: string }) {
   }, [aiStates]);
 
   return (
-    <main className="flex items-center min-h-screen w-full flex-col py-32 px-16 bg-white dark:bg-black">
-      <div className="flex flex-col">
-        <h2 className="text-lg mb-4">{query}</h2>
-        <div className="flex flex-wrap gap-2">
-          {aiMembers.map((props) => (
-            <AiMember
-              key={props.modelId}
-              onClick={() => {
-                setFocusOn((prevState) =>
-                  prevState === props.modelId ? null : props.modelId,
-                );
-              }}
-              aiState={aiStates[props.modelId]}
-              focused={focusOn === props.modelId}
-              {...props}
-            />
-          ))}
-        </div>
-        {focusOn && (
-          <div className="mt-4 border rounded-sm w-full p-1 max-w-4xl">
-            <div className="overflow-y-auto border rounded-xs w-full h-full py-8 px-8 bg-neutral-900">
-              <div className="leading-relaxed text-md text-neutral-200 prose dark:prose-invert prose-neutral prose prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-headings:my-3 prose-strong:font-semibold">
-                <AiResponse>{aiStates[focusOn].fullAnswer}</AiResponse>
+    <main className="flex h-full flex-col items-center py-18">
+      <div className="flex h-full w-4xl flex-col">
+        <h2 className="mb-4 text-lg">{query}</h2>
+        <div className={cn("flex h-full gap-2", { "flex-col": !focusOn })}>
+          <div
+            className={cn("flex flex-wrap gap-2", {
+              "flex-col": !!focusOn,
+            })}
+          >
+            {aiMembers.map((props) => (
+              <AiMember
+                key={props.modelId}
+                onClick={() => {
+                  setFocusOn((prevState) =>
+                    prevState === props.modelId ? null : props.modelId,
+                  );
+                }}
+                aiState={aiStates[props.modelId]}
+                focused={focusOn === props.modelId}
+                {...props}
+              />
+            ))}
+          </div>
+          {focusOn && (
+            <div className="flex h-full grow rounded-sm border p-1">
+              <div className="flex h-full w-full overflow-y-auto rounded-xs border bg-neutral-900 px-8 py-8">
+                <div className="prose dark:prose-invert prose-neutral prose prose-headings:my-3 prose-li:my-0.5 prose-p:my-2 prose-ul:my-2 prose-strong:font-semibold text-md text-neutral-200 leading-relaxed">
+                  <div className="pb-8">
+                    <AiResponse>{aiStates[focusOn].fullAnswer}</AiResponse>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </main>
   );

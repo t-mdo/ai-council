@@ -4,22 +4,7 @@ import { NeonDbError } from "@neondatabase/serverless";
 import { DrizzleQueryError, eq } from "drizzle-orm";
 import { db } from "@/db/index";
 import * as schema from "@/db/schema";
-
-export type Consultation = {
-  publicId: string;
-  query: string;
-  responses: Array<{
-    status: "initial" | "streaming" | "done" | "error";
-    fullAnswer: string | null;
-    answer: string | null;
-    answerColor: string | null;
-    modelId: string;
-    modelName: string;
-    modelImagePath: string;
-    completedAt: string | null;
-  }>;
-  createdAt: Date;
-};
+import type { Consultation } from "@/types/consultation";
 
 const ERROR_CODE_INVALID_INPUT_SYNTAX_FOR_TYPE_UUID = "22P02" as const;
 

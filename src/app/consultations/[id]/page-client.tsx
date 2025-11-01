@@ -3,7 +3,7 @@ import { readStreamableValue } from "@ai-sdk/rsc";
 import { useEffect, useState } from "react";
 import { Response as AiResponse } from "@/components/ai-elements/response";
 import { cn } from "@/lib/utils";
-import type { Consultation } from "./_actions/getConsultationById";
+import type { Consultation } from "@/types/consultation";
 import { queryAiModel } from "./_actions/queryAiModel";
 import { AiMember } from "./ai-member";
 

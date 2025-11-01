@@ -19,10 +19,7 @@ export function QueryForm() {
           return;
         }
 
-        const params = new URLSearchParams({
-          q: result.query,
-        });
-        router.push(`/query?${params.toString()}`);
+        router.push(`/consultations/${result.publicId}`);
       }}
       className="flex w-full items-center gap-2"
     >

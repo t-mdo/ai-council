@@ -24,7 +24,6 @@ export async function submitQuery(formData: FormData) {
 
     return {
       success: true as const,
-      query: consultation.query,
       publicId: consultation.publicId,
     };
   } catch (error) {

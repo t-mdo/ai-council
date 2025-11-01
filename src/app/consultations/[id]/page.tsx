@@ -9,9 +9,7 @@ export default async function ConsultationsPage({
 }) {
   const { id } = await params;
 
-  console.log(id);
   const consultation = await getConsultationById(id);
-  console.log(consultation);
   if (!consultation) notFound();
 
   return <ConsultationsPageClient consultation={consultation} />;

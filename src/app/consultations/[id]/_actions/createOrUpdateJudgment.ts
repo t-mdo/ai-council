@@ -1,3 +1,5 @@
+"use server";
+
 import { and, eq } from "drizzle-orm";
 import pick from "lodash/pick";
 import { db } from "@/db";

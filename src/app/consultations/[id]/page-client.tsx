@@ -3,17 +3,10 @@ import { readStreamableValue } from "@ai-sdk/rsc";
 import { useEffect, useState } from "react";
 import { Response as AiResponse } from "@/components/ai-elements/response";
 import { cn } from "@/lib/utils";
-import type { Consultation } from "@/types/consultation";
+import type { Consultation, Judgment } from "@/types";
+import { createOrUpdateJudgment } from "./_actions/createOrUpdateJudgment";
 import { queryAiModel } from "./_actions/queryAiModel";
 import { AiMember } from "./ai-member";
-
-export type AiState = {
-  status: "initial" | "streaming" | "done" | "error";
-  fullAnswer: string | null;
-  answer: string | null;
-  answerColor: string | null;
-  fullAnswerPreview: string | null;
-};
 
 const AVAILABLE_COLORS = [
   "violet",
@@ -53,7 +46,7 @@ export function ConsultationsPageClient({
   consultation: Consultation;
 }) {
   const [focusOn, setFocusOn] = useState<string | null>(null);
-  const initialAiStates = aiMembers.reduce<Record<string, AiState>>(
+  const initialAiStates = aiMembers.reduce<Record<string, Judgment>>(
     (acc, aiMember) => {
       acc[aiMember.modelId] = {
         status: "initial",
@@ -61,13 +54,14 @@ export function ConsultationsPageClient({
         fullAnswer: null,
         fullAnswerPreview: null,
         answerColor: null,
+        completedAt: null,
       };
       return acc;
     },
     {},
   );
   const [aiStates, setAiStates] =
-    useState<Record<string, AiState>>(initialAiStates);
+    useState<Record<string, Judgment>>(initialAiStates);
 
   useEffect(() => {
     let cancelled = false;
@@ -113,10 +107,12 @@ export function ConsultationsPageClient({
 
   useEffect(() => {
     Object.entries(aiStates).forEach(([modelId, aiState]) => {
-      if (aiState.status !== "done" || aiState.answer) return;
+      const finishedStreaming = aiState.status === "done";
+      const alreadyProcessed = aiState.answer;
+      if (!finishedStreaming || alreadyProcessed) return;
 
+      // Extract answer
       const answerRegex = /({ *"answer" *: *".*" *})$/i;
-
       const match = aiState.fullAnswer?.match(answerRegex);
       if (!match) {
         setAiStates((prevState) => ({
@@ -128,7 +124,6 @@ export function ConsultationsPageClient({
         }));
         return;
       }
-
       const answer = JSON.parse(match[0])?.answer;
       if (!answer) {
         setAiStates((prevState) => ({
@@ -141,8 +136,8 @@ export function ConsultationsPageClient({
         return;
       }
 
+      // Assign a color
       let answerColor: string;
-
       const sameAnswerAlreadyAssignedColor = Object.values(aiStates).find(
         (aiState) =>
           aiState.answer?.toLowerCase() === answer.toLowerCase() &&
@@ -159,17 +154,28 @@ export function ConsultationsPageClient({
         ).size;
         answerColor = AVAILABLE_COLORS[nbOfColorUsed];
       }
+
+      const newJudgement = {
+        ...aiState,
+        fullAnswer:
+          aiState?.fullAnswer?.replace(answerRegex, "").trim() || null,
+        answer,
+        answerColor,
+      };
+      // Set the state
       setAiStates((prevState) => ({
         ...prevState,
-        [modelId]: {
-          ...prevState[modelId],
-          fullAnswer:
-            prevState[modelId]?.fullAnswer?.replace(answerRegex, "").trim() ||
-            null,
-          answer,
-          answerColor,
-        },
+        [modelId]: newJudgement,
       }));
+
+      // Persist the data in db
+      (async () => {
+        await createOrUpdateJudgment(
+          consultation.publicId,
+          modelId,
+          newJudgement,
+        );
+      })();
     });
   }, [aiStates]);
 

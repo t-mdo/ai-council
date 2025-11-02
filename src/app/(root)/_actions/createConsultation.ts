@@ -3,7 +3,7 @@
 import { db } from "@/db/index";
 import { consultations } from "@/db/schema";
 
-export async function submitQuery(formData: FormData) {
+export async function createConsultation(formData: FormData) {
   const query = formData.get("query");
 
   if (typeof query !== "string" || !query.trim()) {

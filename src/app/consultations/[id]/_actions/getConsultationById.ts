@@ -4,7 +4,7 @@ import { NeonDbError } from "@neondatabase/serverless";
 import { DrizzleQueryError, eq } from "drizzle-orm";
 import { db } from "@/db/index";
 import * as schema from "@/db/schema";
-import type { Consultation } from "@/types/consultation";
+import type { Consultation } from "@/types";
 
 const ERROR_CODE_INVALID_INPUT_SYNTAX_FOR_TYPE_UUID = "22P02" as const;
 
@@ -16,7 +16,6 @@ export async function getConsultationById(
       .select({
         publicId: schema.consultations.publicId,
         query: schema.consultations.query,
-        responses: schema.consultations.responses,
         createdAt: schema.consultations.createdAt,
       })
       .from(schema.consultations)

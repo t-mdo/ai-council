@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { submitQuery } from "@/app/(root)/_actions/submitQuery";
+import { createConsultation } from "@/app/(root)/_actions/createConsultation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -12,7 +12,7 @@ export function QueryForm() {
   return (
     <form
       action={async (formData) => {
-        const result = await submitQuery(formData);
+        const result = await createConsultation(formData);
 
         if (!result.success) {
           toast.error(result.error);

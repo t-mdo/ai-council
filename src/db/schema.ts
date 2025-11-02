@@ -28,9 +28,9 @@ export const judgments = pgTable(
   "judgments",
   {
     id: serial("id").primaryKey(),
-    consultationId: uuid("consultation_id")
+    consultationId: integer("consultation_id")
       .notNull()
-      .references(() => consultations.publicId),
+      .references(() => consultations.id),
     judgeId: integer("judge_id")
       .notNull()
       .references(() => judges.id),
@@ -57,7 +57,7 @@ export const judgesRelations = relations(judges, ({ many }) => ({
 export const judgmentsRelations = relations(judgments, ({ one }) => ({
   consultation: one(consultations, {
     fields: [judgments.consultationId],
-    references: [consultations.publicId],
+    references: [consultations.id],
   }),
   judge: one(judges, {
     fields: [judgments.judgeId],

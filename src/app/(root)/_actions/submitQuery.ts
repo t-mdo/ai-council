@@ -18,7 +18,6 @@ export async function submitQuery(formData: FormData) {
       .insert(consultations)
       .values({
         query: query.trim(),
-        responses: [],
       })
       .returning();
 

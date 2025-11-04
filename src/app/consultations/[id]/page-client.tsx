@@ -3,16 +3,10 @@ import { readStreamableValue } from "@ai-sdk/rsc";
 import { useEffect, useState } from "react";
 import { Response as AiResponse } from "@/components/ai-elements/response";
 import { cn } from "@/lib/utils";
+import type { Consultation, Judge, Judgment } from "@/types";
+import { createOrUpdateJudgment } from "./_actions/createOrUpdateJudgment";
 import { queryAiModel } from "./_actions/queryAiModel";
 import { AiMember } from "./ai-member";
-
-export type AiState = {
-  status: "initial" | "streaming" | "done" | "error";
-  fullAnswer: string | null;
-  answer: string | null;
-  answerColor: string | null;
-  fullAnswerPreview: string | null;
-};
 
 const AVAILABLE_COLORS = [
   "violet",
@@ -23,92 +17,91 @@ const AVAILABLE_COLORS = [
   "lime",
 ] as const;
 
-const aiMembers = [
-  {
-    modelId: "anthropic/claude-sonnet-4.5",
-    modelName: "Claude Sonnet 4.5",
-    modelImagePath: "/images/anthropic.avif",
-  },
-  {
-    modelId: "openai/gpt-5",
-    modelName: "GPT 5",
-    modelImagePath: "/images/openai.avif",
-  },
-  {
-    modelId: "google/gemini-2.5-pro",
-    modelName: "Gemini Pro 2.5",
-    modelImagePath: "/images/google.avif",
-  },
-  {
-    modelId: "xai/grok-4",
-    modelName: "Grok 4",
-    modelImagePath: "/images/xai.avif",
-  },
-];
-
-export function QueryPageClient({ query }: { query: string }) {
+export function ConsultationsPageClient({
+  consultation,
+  judgments,
+  judges,
+}: {
+  consultation: Consultation;
+  judgments: Judgment[];
+  judges: Judge[];
+}) {
   const [focusOn, setFocusOn] = useState<string | null>(null);
-  const initialAiStates = aiMembers.reduce<Record<string, AiState>>(
-    (acc, aiMember) => {
-      acc[aiMember.modelId] = {
+  const initialAiStates = judges.reduce<Record<string, Judgment>>(
+    (acc, judge) => {
+      acc[judge.modelId] = judgments.find(
+        (judgement) => judge.modelId === judgement.judgeModelId,
+      ) || {
         status: "initial",
         answer: null,
         fullAnswer: null,
         fullAnswerPreview: null,
         answerColor: null,
+        completedAt: null,
+        judgeModelId: judge.modelId,
       };
       return acc;
     },
     {},
   );
   const [aiStates, setAiStates] =
-    useState<Record<string, AiState>>(initialAiStates);
+    useState<Record<string, Judgment>>(initialAiStates);
 
   useEffect(() => {
     let cancelled = false;
 
-    aiMembers.forEach(async (aiMember) => {
-      const { stream } = await queryAiModel(aiMember.modelId, query);
+    judges
+      .filter(
+        (judge) =>
+          !judgments.find(
+            (judgment) => judge.modelId === judgment.judgeModelId,
+          ),
+      )
+      .forEach(async (judge) => {
+        const { modelId } = judge;
+        const { stream } = await queryAiModel(modelId, consultation.query);
 
-      for await (const delta of readStreamableValue(stream)) {
-        if (cancelled) break;
+        for await (const delta of readStreamableValue(stream)) {
+          if (cancelled) break;
 
-        const PREVIEW_CHAR_LENGTH = 30;
-        setAiStates((prevState) => ({
-          ...prevState,
-          [aiMember.modelId]: {
-            ...prevState[aiMember.modelId],
-            status: "streaming",
-            fullAnswer: (prevState[aiMember.modelId].fullAnswer || "") + delta,
-            fullAnswerPreview: (
-              (prevState[aiMember.modelId].fullAnswerPreview || "") + delta
-            ).slice(-PREVIEW_CHAR_LENGTH),
-          },
-        }));
-      }
+          const PREVIEW_CHAR_LENGTH = 30;
+          setAiStates((prevState) => ({
+            ...prevState,
+            [modelId]: {
+              ...prevState[modelId],
+              status: "streaming",
+              fullAnswer: (prevState[modelId].fullAnswer || "") + delta,
+              fullAnswerPreview: (
+                (prevState[modelId].fullAnswerPreview || "") + delta
+              ).slice(-PREVIEW_CHAR_LENGTH),
+            },
+          }));
+        }
 
-      if (!cancelled) {
-        setAiStates((prevState) => ({
-          ...prevState,
-          [aiMember.modelId]: {
-            ...prevState[aiMember.modelId],
-            status: "done",
-          },
-        }));
-      }
-    });
+        if (!cancelled) {
+          setAiStates((prevState) => ({
+            ...prevState,
+            [modelId]: {
+              ...prevState[modelId],
+              status: "done",
+            },
+          }));
+        }
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [query]);
+  }, [judges, judgments, consultation.query]);
 
   useEffect(() => {
     Object.entries(aiStates).forEach(([modelId, aiState]) => {
-      if (aiState.status !== "done" || aiState.answer) return;
+      const finishedStreaming = aiState.status === "done";
+      const alreadyProcessed = aiState.answer;
+      if (!finishedStreaming || alreadyProcessed) return;
 
+      // Extract answer
       const answerRegex = /({ *"answer" *: *".*" *})$/i;
-
       const match = aiState.fullAnswer?.match(answerRegex);
       if (!match) {
         setAiStates((prevState) => ({
@@ -120,7 +113,6 @@ export function QueryPageClient({ query }: { query: string }) {
         }));
         return;
       }
-
       const answer = JSON.parse(match[0])?.answer;
       if (!answer) {
         setAiStates((prevState) => ({
@@ -133,8 +125,8 @@ export function QueryPageClient({ query }: { query: string }) {
         return;
       }
 
+      // Assign a color
       let answerColor: string;
-
       const sameAnswerAlreadyAssignedColor = Object.values(aiStates).find(
         (aiState) =>
           aiState.answer?.toLowerCase() === answer.toLowerCase() &&
@@ -151,24 +143,35 @@ export function QueryPageClient({ query }: { query: string }) {
         ).size;
         answerColor = AVAILABLE_COLORS[nbOfColorUsed];
       }
+
+      const newJudgement = {
+        ...aiState,
+        fullAnswer:
+          aiState?.fullAnswer?.replace(answerRegex, "").trim() || null,
+        answer,
+        answerColor,
+      };
+      // Set the state
       setAiStates((prevState) => ({
         ...prevState,
-        [modelId]: {
-          ...prevState[modelId],
-          fullAnswer:
-            prevState[modelId]?.fullAnswer?.replace(answerRegex, "").trim() ||
-            null,
-          answer,
-          answerColor,
-        },
+        [modelId]: newJudgement,
       }));
+
+      // Persist the data in db
+      (async () => {
+        await createOrUpdateJudgment(
+          consultation.publicId,
+          modelId,
+          newJudgement,
+        );
+      })();
     });
-  }, [aiStates]);
+  }, [aiStates, consultation.publicId]);
 
   return (
     <main className="flex h-full flex-col items-center py-18">
       <div className="flex w-4xl flex-1 flex-col">
-        <h2 className="mb-4 text-lg">{query}</h2>
+        <h2 className="mb-4 text-lg">{consultation.query}</h2>
         <div
           className={cn("flex max-h-full flex-1 gap-2", {
             "flex-col": !focusOn,
@@ -179,7 +182,7 @@ export function QueryPageClient({ query }: { query: string }) {
               "flex-col": !!focusOn,
             })}
           >
-            {aiMembers.map((props) => (
+            {judges.map((props) => (
               <AiMember
                 key={props.modelId}
                 onClick={() => {
@@ -187,7 +190,7 @@ export function QueryPageClient({ query }: { query: string }) {
                     prevState === props.modelId ? null : props.modelId,
                   );
                 }}
-                aiState={aiStates[props.modelId]}
+                judgment={aiStates[props.modelId]}
                 focused={focusOn === props.modelId}
                 {...props}
               />

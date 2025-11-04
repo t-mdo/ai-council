@@ -26,7 +26,6 @@ export function ConsultationsPageClient({
   judgments: Judgment[];
   judges: Judge[];
 }) {
-  console.log(consultation);
   const [focusOn, setFocusOn] = useState<string | null>(null);
   const initialAiStates = judges.reduce<Record<string, Judgment>>(
     (acc, judge) => {

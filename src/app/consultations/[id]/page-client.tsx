@@ -3,7 +3,7 @@ import { readStreamableValue } from "@ai-sdk/rsc";
 import { useEffect, useState } from "react";
 import { Response as AiResponse } from "@/components/ai-elements/response";
 import { cn } from "@/lib/utils";
-import type { Consultation, Judgment } from "@/types";
+import type { Consultation, Judge, Judgment } from "@/types";
 import { createOrUpdateJudgment } from "./_actions/createOrUpdateJudgment";
 import { queryAiModel } from "./_actions/queryAiModel";
 import { AiMember } from "./ai-member";
@@ -17,44 +17,29 @@ const AVAILABLE_COLORS = [
   "lime",
 ] as const;
 
-const aiMembers = [
-  {
-    modelId: "anthropic/claude-sonnet-4.5",
-    modelName: "Claude Sonnet 4.5",
-    modelImagePath: "/images/anthropic.avif",
-  },
-  {
-    modelId: "openai/gpt-5",
-    modelName: "GPT 5",
-    modelImagePath: "/images/openai.avif",
-  },
-  {
-    modelId: "google/gemini-2.5-pro",
-    modelName: "Gemini Pro 2.5",
-    modelImagePath: "/images/google.avif",
-  },
-  {
-    modelId: "xai/grok-4",
-    modelName: "Grok 4",
-    modelImagePath: "/images/xai.avif",
-  },
-];
-
 export function ConsultationsPageClient({
   consultation,
+  judgments,
+  judges,
 }: {
   consultation: Consultation;
+  judgments: Judgment[];
+  judges: Judge[];
 }) {
+  console.log(consultation);
   const [focusOn, setFocusOn] = useState<string | null>(null);
-  const initialAiStates = aiMembers.reduce<Record<string, Judgment>>(
-    (acc, aiMember) => {
-      acc[aiMember.modelId] = {
+  const initialAiStates = judges.reduce<Record<string, Judgment>>(
+    (acc, judge) => {
+      acc[judge.modelId] = judgments.find(
+        (judgement) => judge.modelId === judgement.judgeModelId,
+      ) || {
         status: "initial",
         answer: null,
         fullAnswer: null,
         fullAnswerPreview: null,
         answerColor: null,
         completedAt: null,
+        judgeModelId: judge.modelId,
       };
       return acc;
     },
@@ -66,7 +51,7 @@ export function ConsultationsPageClient({
   useEffect(() => {
     let cancelled = false;
 
-    aiMembers.forEach(async (aiMember) => {
+    judges.forEach(async (aiMember) => {
       const { stream } = await queryAiModel(
         aiMember.modelId,
         consultation.query,
@@ -103,7 +88,7 @@ export function ConsultationsPageClient({
     return () => {
       cancelled = true;
     };
-  }, [consultation.query]);
+  }, [judges, consultation.query]);
 
   useEffect(() => {
     Object.entries(aiStates).forEach(([modelId, aiState]) => {
@@ -177,7 +162,7 @@ export function ConsultationsPageClient({
         );
       })();
     });
-  }, [aiStates]);
+  }, [aiStates, consultation.publicId]);
 
   return (
     <main className="flex h-full flex-col items-center py-18">
@@ -193,7 +178,7 @@ export function ConsultationsPageClient({
               "flex-col": !!focusOn,
             })}
           >
-            {aiMembers.map((props) => (
+            {judges.map((props) => (
               <AiMember
                 key={props.modelId}
                 onClick={() => {

@@ -34,7 +34,9 @@ export const judgments = pgTable(
     judgeId: integer("judge_id")
       .notNull()
       .references(() => judges.id),
-    status: text("status").notNull().default("initial"),
+    status: text("status", { enum: ["initial", "streaming", "done", "error"] })
+      .notNull()
+      .default("initial"),
     fullAnswer: text("full_answer"),
     answer: text("answer"),
     answerColor: text("answer_color"),

@@ -50,45 +50,44 @@ export function ConsultationsPageClient({
   useEffect(() => {
     let cancelled = false;
 
-    judgments.forEach(async (judgment) => {
-      const startedStreaming = judgment.status !== "initial";
-      if (startedStreaming) return;
+    Object.values(aiStates)
+      .filter((judgment) => judgment.status === "initial")
+      .forEach(async (judgment) => {
+        const { judgeModelId } = judgment;
+        const { stream } = await queryAiModel(judgeModelId, consultation.query);
 
-      const judgeModelId = judgment.judgeModelId;
-      const { stream } = await queryAiModel(judgeModelId, consultation.query);
+        for await (const delta of readStreamableValue(stream)) {
+          if (cancelled) break;
 
-      for await (const delta of readStreamableValue(stream)) {
-        if (cancelled) break;
+          const PREVIEW_CHAR_LENGTH = 30;
+          setAiStates((prevState) => ({
+            ...prevState,
+            [judgeModelId]: {
+              ...prevState[judgeModelId],
+              status: "streaming",
+              fullAnswer: (prevState[judgeModelId].fullAnswer || "") + delta,
+              fullAnswerPreview: (
+                (prevState[judgeModelId].fullAnswerPreview || "") + delta
+              ).slice(-PREVIEW_CHAR_LENGTH),
+            },
+          }));
+        }
 
-        const PREVIEW_CHAR_LENGTH = 30;
-        setAiStates((prevState) => ({
-          ...prevState,
-          [judgeModelId]: {
-            ...prevState[judgeModelId],
-            status: "streaming",
-            fullAnswer: (prevState[judgeModelId].fullAnswer || "") + delta,
-            fullAnswerPreview: (
-              (prevState[judgeModelId].fullAnswerPreview || "") + delta
-            ).slice(-PREVIEW_CHAR_LENGTH),
-          },
-        }));
-      }
-
-      if (!cancelled) {
-        setAiStates((prevState) => ({
-          ...prevState,
-          [judgment.judgeModelId]: {
-            ...prevState[judgeModelId],
-            status: "done",
-          },
-        }));
-      }
-    });
+        if (!cancelled) {
+          setAiStates((prevState) => ({
+            ...prevState,
+            [judgeModelId]: {
+              ...prevState[judgeModelId],
+              status: "done",
+            },
+          }));
+        }
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [judgments, consultation.query]);
+  }, [aiStates, consultation.query]);
 
   useEffect(() => {
     Object.entries(aiStates).forEach(([modelId, aiState]) => {

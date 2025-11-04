@@ -186,7 +186,7 @@ export function ConsultationsPageClient({
                     prevState === props.modelId ? null : props.modelId,
                   );
                 }}
-                aiState={aiStates[props.modelId]}
+                judgment={aiStates[props.modelId]}
                 focused={focusOn === props.modelId}
                 {...props}
               />

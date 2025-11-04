@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import type { AiState } from "./page-client";
+import type { Judgment } from "@/types";
 
 type AiMemberObject = {
   modelImagePath: string;
@@ -13,15 +13,15 @@ type AiMemberObject = {
 export function AiMember({
   modelImagePath,
   modelName,
-  aiState,
+  judgment,
   focused,
   onClick,
 }: AiMemberObject & {
-  aiState: AiState;
+  judgment: Judgment;
   focused?: boolean;
   onClick: () => void;
 }) {
-  const colorCss = `bg-${aiState.answerColor}-900 text-${aiState.answerColor}-100`;
+  const colorCss = `bg-${judgment.answerColor}-900 text-${judgment.answerColor}-100`;
 
   return (
     <button
@@ -49,21 +49,21 @@ export function AiMember({
         className={cn(
           "flex items-center gap-2 rounded-xs border p-2 font-geist-mono",
           {
-            [colorCss]: aiState.status === "done",
+            [colorCss]: judgment.status === "done",
           },
         )}
       >
-        {aiState.status === "initial" && (
+        {judgment.status === "initial" && (
           <p className="animate-pulse text-neutral-600 text-xs">Waiting...</p>
         )}
-        {aiState.status === "streaming" && (
+        {judgment.status === "streaming" && (
           <p className="w-full animate-pulse overflow-hidden text-ellipsis text-nowrap text-neutral-600 text-xs">
-            {aiState.fullAnswerPreview}…
+            {judgment.fullAnswerPreview}…
           </p>
         )}
-        {aiState.status === "done" && (
+        {judgment.status === "done" && (
           <p className="w-full text-center text-semibold text-xs">
-            {aiState.answer}
+            {judgment.answer}
           </p>
         )}
       </div>

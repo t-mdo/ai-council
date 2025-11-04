@@ -51,12 +51,11 @@ export function ConsultationsPageClient({
     let cancelled = false;
 
     judgments.forEach(async (judgment) => {
-      const finishedStreaming = judgment.status === "done";
-      if (finishedStreaming) continue;
-      const { stream } = await queryAiModel(
-        judgment.judgeModelId,
-        consultation.query,
-      );
+      const startedStreaming = judgment.status !== "initial";
+      if (startedStreaming) return;
+
+      const judgeModelId = judgment.judgeModelId;
+      const { stream } = await queryAiModel(judgeModelId, consultation.query);
 
       for await (const delta of readStreamableValue(stream)) {
         if (cancelled) break;
@@ -64,12 +63,12 @@ export function ConsultationsPageClient({
         const PREVIEW_CHAR_LENGTH = 30;
         setAiStates((prevState) => ({
           ...prevState,
-          [aiMember.modelId]: {
-            ...prevState[aiMember.modelId],
+          [judgeModelId]: {
+            ...prevState[judgeModelId],
             status: "streaming",
-            fullAnswer: (prevState[aiMember.modelId].fullAnswer || "") + delta,
+            fullAnswer: (prevState[judgeModelId].fullAnswer || "") + delta,
             fullAnswerPreview: (
-              (prevState[aiMember.modelId].fullAnswerPreview || "") + delta
+              (prevState[judgeModelId].fullAnswerPreview || "") + delta
             ).slice(-PREVIEW_CHAR_LENGTH),
           },
         }));
@@ -78,8 +77,8 @@ export function ConsultationsPageClient({
       if (!cancelled) {
         setAiStates((prevState) => ({
           ...prevState,
-          [aiMember.modelId]: {
-            ...prevState[aiMember.modelId],
+          [judgment.judgeModelId]: {
+            ...prevState[judgeModelId],
             status: "done",
           },
         }));

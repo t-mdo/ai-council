@@ -53,13 +53,11 @@ export async function createOrUpdateJudgment(
     "answerColor",
   ]);
   if (judgmentId) {
-    console.log("create");
     await db
       .update(schema.judgments)
       .set(judgmentNewState)
       .where(eq(schema.judgments.id, judgmentId));
   } else {
-    console.log("update");
     await db.insert(schema.judgments).values({
       consultationId: consultationId,
       judgeId: judgeId,

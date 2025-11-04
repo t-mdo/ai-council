@@ -50,11 +50,16 @@ export function ConsultationsPageClient({
   useEffect(() => {
     let cancelled = false;
 
-    Object.values(aiStates)
-      .filter((judgment) => judgment.status === "initial")
-      .forEach(async (judgment) => {
-        const { judgeModelId } = judgment;
-        const { stream } = await queryAiModel(judgeModelId, consultation.query);
+    judges
+      .filter(
+        (judge) =>
+          !judgments.find(
+            (judgment) => judge.modelId === judgment.judgeModelId,
+          ),
+      )
+      .forEach(async (judge) => {
+        const { modelId } = judge;
+        const { stream } = await queryAiModel(modelId, consultation.query);
 
         for await (const delta of readStreamableValue(stream)) {
           if (cancelled) break;
@@ -62,12 +67,12 @@ export function ConsultationsPageClient({
           const PREVIEW_CHAR_LENGTH = 30;
           setAiStates((prevState) => ({
             ...prevState,
-            [judgeModelId]: {
-              ...prevState[judgeModelId],
+            [modelId]: {
+              ...prevState[modelId],
               status: "streaming",
-              fullAnswer: (prevState[judgeModelId].fullAnswer || "") + delta,
+              fullAnswer: (prevState[modelId].fullAnswer || "") + delta,
               fullAnswerPreview: (
-                (prevState[judgeModelId].fullAnswerPreview || "") + delta
+                (prevState[modelId].fullAnswerPreview || "") + delta
               ).slice(-PREVIEW_CHAR_LENGTH),
             },
           }));
@@ -76,8 +81,8 @@ export function ConsultationsPageClient({
         if (!cancelled) {
           setAiStates((prevState) => ({
             ...prevState,
-            [judgeModelId]: {
-              ...prevState[judgeModelId],
+            [modelId]: {
+              ...prevState[modelId],
               status: "done",
             },
           }));
@@ -87,7 +92,7 @@ export function ConsultationsPageClient({
     return () => {
       cancelled = true;
     };
-  }, [aiStates, consultation.query]);
+  }, [judges, judgments, consultation.query]);
 
   useEffect(() => {
     Object.entries(aiStates).forEach(([modelId, aiState]) => {

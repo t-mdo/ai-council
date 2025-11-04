@@ -50,9 +50,11 @@ export function ConsultationsPageClient({
   useEffect(() => {
     let cancelled = false;
 
-    judges.forEach(async (aiMember) => {
+    judgments.forEach(async (judgment) => {
+      const finishedStreaming = judgment.status === "done";
+      if (finishedStreaming) continue;
       const { stream } = await queryAiModel(
-        aiMember.modelId,
+        judgment.judgeModelId,
         consultation.query,
       );
 
@@ -87,7 +89,7 @@ export function ConsultationsPageClient({
     return () => {
       cancelled = true;
     };
-  }, [judges, consultation.query]);
+  }, [judgments, consultation.query]);
 
   useEffect(() => {
     Object.entries(aiStates).forEach(([modelId, aiState]) => {

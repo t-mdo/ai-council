@@ -1,5 +1,6 @@
 "use client";
 
+import { times } from "lodash";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createConsultation } from "@/app/(root)/_actions/createConsultation";
@@ -21,13 +22,20 @@ export function QueryForm() {
 
         router.push(`/consultations/${result.publicId}`);
       }}
-      className="flex w-full items-end items-center gap-2"
     >
-      <PromptInput
-        name="query"
-        placeholder="Ask the council of models to choose between multiple options"
-      />
-      <Button>↑</Button>
+      <div className="mb-4">
+        <h4 className="text-neutral-500 text-sm">Coucil</h4>
+        {times(4).map(() => (
+          <JudgeCombo />
+        ))}
+      </div>
+      <div className="flex w-full items-end items-center gap-2">
+        <PromptInput
+          name="query"
+          placeholder="Ask the council of models to choose between multiple options"
+        />
+        <Button>↑</Button>
+      </div>
     </form>
   );
 }

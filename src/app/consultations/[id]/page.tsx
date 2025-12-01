@@ -10,10 +10,14 @@ export default async function ConsultationsPage({
 }) {
   const { id } = await params;
 
+  console.time("getConsultation");
   const consultation = await getConsultationById(id);
+  console.timeEnd("getConsultation");
   if (!consultation) notFound();
 
+  console.time("getJudges");
   const judges = await getJudges();
+  console.timeEnd("getJudges");
 
   return (
     <ConsultationsPageClient

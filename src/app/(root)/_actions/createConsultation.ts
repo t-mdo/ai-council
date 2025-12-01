@@ -14,12 +14,14 @@ export async function createConsultation(formData: FormData) {
   }
 
   try {
+    console.time("createConsultation");
     const [consultation] = await db
       .insert(consultations)
       .values({
         query: query.trim(),
       })
       .returning();
+    console.timeEnd("createConsultation");
 
     return {
       success: true as const,

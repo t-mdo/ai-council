@@ -172,15 +172,9 @@ export function ConsultationsPageClient({
     <main className="flex h-full flex-col items-center py-18">
       <div className="flex w-4xl flex-1 flex-col">
         <h2 className="mb-4 text-lg">{consultation.query}</h2>
-        <div
-          className={cn("flex max-h-full flex-1 gap-2", {
-            "flex-col": !focusOn,
-          })}
-        >
+        <div className={cn("flex max-h-full flex-1 flex-col gap-2")}>
           <div
-            className={cn("flex flex-wrap items-start gap-2", {
-              "flex-col": !!focusOn,
-            })}
+            className={cn("flex flex-wrap items-start justify-between gap-2")}
           >
             {judges.map((props) => (
               <AiMember
